@@ -4,12 +4,25 @@
             [bwa.mimic.memory-websocket :as mem-socket]
             [bwa.mimic.server :as server]
             [bwa.mimic.websocket :as ws]
+            [c3kit.apron.corec :as ccc]
             [c3kit.wire.js :as wjs]
             [speclj.core]
             [speclj.stub :as stub]))
 
 (def server server/impl)
 (declare sock)
+
+(defn ->add-event-listener [sock]
+  (fn [event handler]
+    (let [event    (str "on" event)
+          existing (wjs/o-get sock event)]
+      (wjs/o-set sock event (juxt existing handler)))))
+
+(defn ->Socket [ready-state]
+  (let [sock (js-obj "readyState" ready-state
+                     "onclose" ccc/noop)]
+    (wjs/o-set sock "addEventListener" (->add-event-listener sock))
+    sock))
 
 (describe "Memory Server"
   (with-stubs)
@@ -18,27 +31,36 @@
 
   (with sock (mem-socket/->MemSocket "ws://example.com"))
 
+  (it "connections"
+    (should= [@sock] (server/connections))
+    (let [sock-2 (mem-socket/->MemSocket "ws://blah.com")]
+      (should= [@sock sock-2] (server/connections))
+      (ws/close! @sock)
+      (should= [sock-2] (server/connections))
+      (ws/close! sock-2)
+      (should= [] (server/connections))))
+
   (context "initiate"
 
     (it "throws when socket is already open"
       (should-throw js/Error "Socket is not CONNECTING"
-        (server/initiate (js-obj "readyState" 1))))
+        (server/initiate (->Socket 1))))
 
     (it "throws when socket is closing"
       (should-throw js/Error "Socket is not CONNECTING"
-        (server/initiate (js-obj "readyState" 2))))
+        (server/initiate (->Socket 2))))
 
     (it "throws when socket is closing"
       (should-throw js/Error "Socket is not CONNECTING"
-        (server/initiate (js-obj "readyState" 2))))
+        (server/initiate (->Socket 2))))
 
     (it "stores socket in-memory"
-      (let [socket (js-obj "readyState" 0)]
+      (let [socket (->Socket 0)]
         (server/initiate socket)
         (should-contain socket @(:sockets @server/impl))))
 
     (it "throws when socket has already been initiated"
-      (let [socket (js-obj "readyState" 0)]
+      (let [socket (->Socket 0)]
         (server/initiate socket)
         (should-throw js/Error "Socket has already been initiated" (server/initiate socket))))
     )

@@ -26,10 +26,14 @@
   (js-invoke sock "onerror" (event/->ErrorEvent sock))
   (js-invoke sock "onclose" (event/->CloseEvent sock 1006 "" false)))
 
+(defmethod server/-connections :memory [server]
+  (vec @(:sockets server)))
+
 (defmethod server/-initiate :memory [{:keys [sockets]} sock]
   (assert-connecting! sock)
   (assert-uninitialized @sockets sock)
-  (swap! sockets conj sock))
+  (swap! sockets conj sock)
+  (wjs/add-listener sock "close" #(swap! sockets disj sock)))
 
 (defmethod server/-open :memory [server sock]
   (assert-running! server)

@@ -1,5 +1,5 @@
 (ns bwa.mimic.server-spec
-  (:require-macros [speclj.core :refer [before context describe it should-not-throw should=]])
+  (:require-macros [speclj.core :refer [before context describe it should-be-nil should=]])
   (:require [bwa.mimic.server :as sut]
             [c3kit.wire.js :as wjs]
             [speclj.core]))
@@ -19,23 +19,26 @@
   (context "default"
     (before (reset! sut/impl nil))
 
-    (it "initiate"
-      (should-not-throw (sut/initiate sock)))
+    (it "connections"
+      (should-be-nil (sut/connections)))
 
     (it "open"
-      (should-not-throw (sut/open sock)))
+      (should-be-nil (sut/open sock)))
 
     (it "reject"
-      (should-not-throw (sut/reject sock 0 "blah")))
+      (should-be-nil (sut/reject sock 0 "blah")))
 
     (it "close"
-      (should-not-throw (sut/close sock)))
+      (should-be-nil (sut/close sock)))
 
     (it "send"
-      (should-not-throw (sut/send sock "blah")))
+      (should-be-nil (sut/send sock "blah")))
 
     (it "shutdown"
-      (should-not-throw (sut/shutdown)))
+      (should-be-nil (sut/shutdown)))
+
+    (it "initiate"
+      (should-be-nil (sut/initiate sock)))
 
     )
   )

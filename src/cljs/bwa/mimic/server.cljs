@@ -2,12 +2,17 @@
 
 (def impl (atom nil))
 
+(defmulti -connections (fn [server _sock] (:impl server)))
 (defmulti -open (fn [server _sock] (:impl server)))
 (defmulti -close (fn [server _sock] (:impl server)))
 (defmulti -send (fn [server _sock _message] (:impl server)))
 (defmulti -reject (fn [server _sock _code _reason] (:impl server)))
 (defmulti -shutdown (fn [server] (:impl server)))
 (defmulti -initiate (fn [server _sock] (:impl server)))
+
+(defn connections
+  "Returns a collection of active connections"
+  [] (-connections @impl))
 
 (defn initiate
   "The socket initiates a connection to the server."
@@ -50,6 +55,7 @@
 
 ;region default
 
+(defmethod -connections :default [_server _sock])
 (defmethod -initiate :default [_server _sock])
 (defmethod -open :default [_server _sock])
 (defmethod -reject :default [_server _sock _code _reason])
