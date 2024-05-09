@@ -1,5 +1,5 @@
 (ns bwa.mimic.memory-server-spec
-  (:require-macros [speclj.core :refer [before context describe it should should-contain should-have-invoked should-not-have-invoked should-throw should= stub with with-stubs]])
+  (:require-macros [speclj.core :refer [before context describe it should should-be-nil should-contain should-have-invoked should-not-have-invoked should-throw should= stub with with-stubs]])
   (:require [bwa.mimic.memory-server :as sut]
             [bwa.mimic.memory-websocket :as mem-socket]
             [bwa.mimic.server :as server]
@@ -39,6 +39,14 @@
       (should= [sock-2] (server/connections))
       (ws/close! sock-2)
       (should= [] (server/connections))))
+
+  (it "receives arbitrary data for a socket and flushes it out"
+    (server/receive @sock "blah")
+    (should= ["blah"] (server/messages @sock))
+    (server/receive @sock "foo")
+    (should= ["blah" "foo"] (server/messages @sock))
+    (server/flush @sock)
+    (should-be-nil (server/messages @sock)))
 
   (context "initiate"
 

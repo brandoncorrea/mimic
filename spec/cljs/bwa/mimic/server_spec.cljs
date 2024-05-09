@@ -40,6 +40,15 @@
     (it "send"
       (should-be-nil (sut/send sock "blah")))
 
+    (it "receive"
+      (should-be-nil (sut/receive sock "blah")))
+
+    (it "messages"
+      (should-be-nil (sut/messages sock)))
+
+    (it "flush"
+      (should-be-nil (sut/flush sock)))
+
     (it "shutdown"
       (should-be-nil (sut/shutdown)))
 

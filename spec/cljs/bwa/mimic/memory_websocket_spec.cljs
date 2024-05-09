@@ -108,6 +108,11 @@
       (ws/send! @sock "data")
       (should= "MemSocket is already in CLOSING or CLOSED state." (log/captured-logs-str)))
 
+    (it "sends a message to the server"
+      (wjs/o-set @sock "readyState" 1)
+      (ws/send! @sock "data")
+      (should= ["data"] (server/messages @sock)))
+
     )
 
   (context "on open"

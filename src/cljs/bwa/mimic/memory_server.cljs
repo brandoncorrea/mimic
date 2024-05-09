@@ -2,12 +2,13 @@
   (:require [bwa.mimic.event :as event]
             [bwa.mimic.server :as server]
             [bwa.mimic.websocket :as ws]
+            [c3kit.apron.corec :as ccc]
             [c3kit.wire.js :as wjs]))
 
 (defn ->MemoryServer []
   {:impl     :memory
    :running? (atom true)
-   :sockets  (atom #{})})
+   :sockets  (atom {})})
 
 (defn- assert-running! [server]
   (when-not @(:running? server)
@@ -27,13 +28,13 @@
   (ws/dispatch-event! sock (event/->CloseEvent sock 1006 "" false)))
 
 (defmethod server/-connections :memory [server]
-  (vec @(:sockets server)))
+  (vec (keys @(:sockets server))))
 
 (defmethod server/-initiate :memory [{:keys [sockets]} sock]
   (assert-connecting! sock)
   (assert-uninitialized @sockets sock)
-  (swap! sockets conj sock)
-  (wjs/add-listener sock "close" #(swap! sockets disj sock)))
+  (swap! sockets assoc sock {})
+  (wjs/add-listener sock "close" #(swap! sockets dissoc sock)))
 
 (defmethod server/-open :memory [server sock]
   (assert-running! server)
@@ -61,9 +62,18 @@
     (throw (ex-info "Socket is not OPEN" sock)))
   (ws/dispatch-event! sock (event/->MessageEvent sock data)))
 
+(defmethod server/-receive :memory [server sock data]
+  (swap! (:sockets server) update-in [sock :messages] ccc/conjv data))
+
+(defmethod server/-messages :memory [server sock]
+  (get-in @(:sockets server) [sock :messages]))
+
+(defmethod server/-flush :memory [server sock]
+  (swap! (:sockets server) update sock dissoc :messages))
+
 (defmethod server/-shutdown :memory [{:keys [running? sockets] :as server}]
   (assert-running! server)
   (reset! running? false)
-  (->> @sockets
+  (->> (keys @sockets)
        (filter (some-fn ws/open? ws/connecting?))
        (run! shutdown-socket!)))

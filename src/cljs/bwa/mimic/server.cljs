@@ -8,6 +8,9 @@
 (defmulti -reject (fn [server _sock _code _reason] (:impl server)))
 (defmulti -close (fn [server _sock] (:impl server)))
 (defmulti -send (fn [server _sock _message] (:impl server)))
+(defmulti -receive (fn [server _sock _data] (:impl server)))
+(defmulti -messages (fn [server _sock] (:impl server)))
+(defmulti -flush (fn [server _sock] (:impl server)))
 (defmulti -shutdown (fn [server] (:impl server)))
 
 (defn connections
@@ -38,6 +41,18 @@
    Invokes the socket onmessage event."
   [sock data] (-send @impl sock data))
 
+(defn receive
+  "The socket sends a message to the server."
+  [sock data] (-receive @impl sock data))
+
+(defn messages
+  "A collection of messages sent by the socket."
+  [sock] (-messages @impl sock))
+
+(defn flush
+  "Flush out messages from a socket."
+  [sock] (-flush @impl sock))
+
 (defn shutdown
   "The server shuts down.
    Invokes the socket onerror, then onclose events for all OPEN or CONNECTING sockets."
@@ -52,6 +67,7 @@
     "reject" reject
     "close" close
     "send" send
+    "receive" receive
     "shutdown" shutdown))
 
 ;region default
@@ -62,6 +78,9 @@
 (defmethod -reject :default [_server _sock _code _reason])
 (defmethod -close :default [_server _sock])
 (defmethod -send :default [_server _sock _data])
+(defmethod -receive :default [_server _sock _data])
+(defmethod -messages :default [_server _sock])
+(defmethod -flush :default [_server _sock])
 (defmethod -shutdown :default [_server])
 
 ;endregion
