@@ -100,7 +100,7 @@
         (should= 123.4567 (get event "timeStamp"))
         (should= "open" (get event "type"))))
 
-    (it "reverences socket object in open event"
+    (it "references socket object in open event"
       (wjs/add-listener @sock "open" (stub :open))
       (server/open @sock)
       (let [[event] (stub/last-invocation-of :open)]
