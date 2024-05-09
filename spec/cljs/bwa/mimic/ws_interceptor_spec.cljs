@@ -15,23 +15,23 @@
   (context "->WebSocketProxy"
 
     (it "url only"
-      (let [ws (sut/->WebSocketInterceptor "ws://javascript.info")]
+      (let [ws (sut/->WebSocketInterceptor "ws://bwawan.com")]
         (should-be-a js/WebSocket ws)
-        (should= "ws://javascript.info/" (wjs/o-get ws "url"))
+        (should= "ws://bwawan.com/" (wjs/o-get ws "url"))
         (should= "" (wjs/o-get ws "protocol"))
         (should= [ws] (server/connections))))
 
     (it "with protocols"
-      (let [ws (sut/->WebSocketInterceptor "ws://javascript.info" "foo")]
+      (let [ws (sut/->WebSocketInterceptor "ws://bwawan.com" "foo")]
         (should-be-a js/WebSocket ws)
-        (should= "ws://javascript.info/" (wjs/o-get ws "url"))
+        (should= "ws://bwawan.com/" (wjs/o-get ws "url"))
         (should= "" (wjs/o-get ws "protocol"))
         (should= [ws] (server/connections))))
 
     (it "with WebSocket alias"
       (let [js-web-socket js/WebSocket]
         (set! js/WebSocket sut/->WebSocketInterceptor)
-        (let [ws (js/WebSocket. "ws://javascript.info")]
+        (let [ws (js/WebSocket. "ws://bwawan.com")]
           (should-be-a js-web-socket ws)
           (should= [ws] (server/connections)))))
 
