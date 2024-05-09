@@ -38,7 +38,7 @@
 (defn- send [sock data]
   (case (ws/ready-state sock)
     0 (throw (ex-info "MemSocket is still in CONNECTING state." data))
-    1 nil
+    1 nil ;; TODO [BAC]: What to do when ws sends data?
     (log/error "MemSocket is already in CLOSING or CLOSED state.")))
 
 (defn- on-close [sock code reason]
