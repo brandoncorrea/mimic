@@ -1,4 +1,5 @@
-(ns bwa.mimic.server)
+(ns bwa.mimic.server
+  (:refer-clojure :exclude [-flush flush]))
 
 (def impl (atom nil))
 
