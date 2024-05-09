@@ -5,7 +5,6 @@
             [bwa.mimic.server :as server]
             [bwa.mimic.spec-helperc :as spec-helperc]
             [bwa.mimic.websocket :as ws]
-            [c3kit.apron.corec :as ccc]
             [c3kit.wire.js :as wjs]
             [speclj.core]
             [speclj.stub :as stub]))

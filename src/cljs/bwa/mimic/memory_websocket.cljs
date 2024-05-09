@@ -42,7 +42,7 @@
     (log/error "MemSocket is already in CLOSING or CLOSED state.")))
 
 (defn- on-close [sock code reason]
-  (ws/dispatch-event! sock (event/->CloseEvent sock code reason)))
+  (ws/dispatch-event! sock (event/->CloseEvent sock code reason true)))
 
 (defn- close
   ([sock] (close sock 1000))

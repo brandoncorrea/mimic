@@ -318,7 +318,7 @@
 
     (context "on close handler"
       (it "unassigned"
-        (should-not-throw (ws/dispatch-event! @sock (event/->CloseEvent @sock 1000 ""))))
+        (should-not-throw (ws/dispatch-event! @sock (event/->CloseEvent @sock 1000 "" true))))
 
       (it "already closed"
         (ws/close! @sock)

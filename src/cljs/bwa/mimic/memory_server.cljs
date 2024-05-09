@@ -21,14 +21,6 @@
   (when (contains? sockets sock)
     (throw (ex-info "Socket has already been initiated" sock))))
 
-;; TODO [BAC]: onclose, onopen, onmessage and onerror do not work with real WebSockets.
-;;  - addEventListener does not update the "onevent" properties,
-;;    but rather is part of the WebSocket implementation.
-;;  - Event handlers must be invoked with a js/Event object
-;;  - A js/Event can be created, but not modified.
-;;  - MemServer must only know about "dispatchEvent", and MemSocket must implement that instead of "onevent"s
-;;  - Creation of Event objects must be tied to the WebSocket implementation being used
-
 (defn- shutdown-socket! [sock]
   (wjs/o-set sock "readyState" 3)
   (ws/dispatch-event! sock (event/->ErrorEvent sock))
@@ -54,7 +46,7 @@
   (when-not (#{0 1} (ws/ready-state sock))
     (throw (ex-info "Socket is not CONNECTING or OPEN" sock)))
   (wjs/o-set sock "readyState" 3)
-  (ws/dispatch-event! sock (event/->CloseEvent sock 1000 "closed by server")))
+  (ws/dispatch-event! sock (event/->CloseEvent sock 1000 "closed by server" true)))
 
 (defmethod server/-reject :memory [server sock code reason]
   (assert-running! server)
