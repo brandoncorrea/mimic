@@ -42,8 +42,7 @@
     (log/error "MemSocket is already in CLOSING or CLOSED state.")))
 
 (defn- on-close [sock code reason]
-  (when-let [on-close (wjs/o-get sock "onclose")]
-    (on-close (event/->CloseEvent sock code reason))))
+  (ws/dispatch-event! sock (event/->CloseEvent sock code reason)))
 
 (defn- close
   ([sock] (close sock 1000))
@@ -79,29 +78,31 @@
         (on-error event)
         (log/error (str "Error occurred in MemSocket " event-name) e)))))
 
-(defn- on-close-error [event] (wjs/o-set event "wasClean" false))
-(def events #{"close" "message" "error" "open"})
-(defn- add-listener [sock event listener]
-  (when (events event)
-    (let [error-handler (if (= "close" event) on-close-error ccc/noop)
-          event         (str "on" event)]
-      (wjs/o-update! sock event append-listener listener event error-handler))))
+(defn- add-listener [event-queue event listener]
+  (when (not-any? #{listener} (get @event-queue event))
+    (swap! event-queue update event ccc/conjv listener)))
 
-;; TODO [BAC]:
-;;  - Event handlers need to be removable
-;;  - When adding the same event handler multiple times how does WebSocket handle this?
-;;    - Invoked once? Multiple times?
-;;    - In what sequence is a handler invoked? Preserve the former? Overwrite with the latter?
+(defn- remove-listener [event-queue event listener]
+  (swap! event-queue update event #(ccc/removev #{listener} %)))
+
+(defn- dispatch-event [event-queue event]
+  (let [event-type (wjs/o-get event "type")
+        handlers   (seq (get @event-queue event-type))]
+    (doseq [handler handlers]
+      (try (handler event)
+           (catch :default e
+             (when (= "close" event-type) (wjs/o-set event "wasClean" false))
+             (log/error (str "Error occurred in MemSocket " event-type) e))))))
+
 (defn ->MemSocket
   ([url] (->MemSocket url (clj->js [])))
   ([url protocols]
-   (let [sock (init url protocols)]
+   (let [sock        (init url protocols)
+         event-queue (atom {})]
      (wjs/o-set sock "send" (partial send sock))
      (wjs/o-set sock "close" (partial close sock))
-     (wjs/o-set sock "addEventListener" (partial add-listener sock))
-     (wjs/o-set sock "onopen" ccc/noop)
-     (wjs/o-set sock "onmessage" ccc/noop)
-     (wjs/o-set sock "onerror" ccc/noop)
-     (wjs/o-set sock "onclose" ccc/noop)
+     (wjs/o-set sock "addEventListener" (partial add-listener event-queue))
+     (wjs/o-set sock "removeEventListener" (partial remove-listener event-queue))
+     (wjs/o-set sock "dispatchEvent" (partial dispatch-event event-queue))
      (server/initiate sock)
      sock)))

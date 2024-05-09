@@ -31,8 +31,8 @@
 
 (defn- shutdown-socket! [sock]
   (wjs/o-set sock "readyState" 3)
-  (js-invoke sock "onerror" (event/->ErrorEvent sock))
-  (js-invoke sock "onclose" (event/->CloseEvent sock 1006 "" false)))
+  (ws/dispatch-event! sock (event/->ErrorEvent sock))
+  (ws/dispatch-event! sock (event/->CloseEvent sock 1006 "" false)))
 
 (defmethod server/-connections :memory [server]
   (vec @(:sockets server)))
@@ -47,27 +47,27 @@
   (assert-running! server)
   (assert-connecting! sock)
   (wjs/o-set sock "readyState" 1)
-  (js-invoke sock "onopen" (event/->OpenEvent sock)))
+  (ws/dispatch-event! sock (event/->OpenEvent sock)))
 
 (defmethod server/-close :memory [server sock]
   (assert-running! server)
   (when-not (#{0 1} (ws/ready-state sock))
     (throw (ex-info "Socket is not CONNECTING or OPEN" sock)))
   (wjs/o-set sock "readyState" 3)
-  (js-invoke sock "onclose" (event/->CloseEvent sock 1000 "closed by server")))
+  (ws/dispatch-event! sock (event/->CloseEvent sock 1000 "closed by server")))
 
 (defmethod server/-reject :memory [server sock code reason]
   (assert-running! server)
   (assert-connecting! sock)
   (wjs/o-set sock "readyState" 3)
-  (js-invoke sock "onerror" (event/->ErrorEvent sock))
-  (js-invoke sock "onclose" (event/->CloseEvent sock code reason false)))
+  (ws/dispatch-event! sock (event/->ErrorEvent sock))
+  (ws/dispatch-event! sock (event/->CloseEvent sock code reason false)))
 
 (defmethod server/-send :memory [server sock data]
   (assert-running! server)
   (when-not (ws/open? sock)
     (throw (ex-info "Socket is not OPEN" sock)))
-  (js-invoke sock "onmessage" (event/->MessageEvent sock data)))
+  (ws/dispatch-event! sock (event/->MessageEvent sock data)))
 
 (defmethod server/-shutdown :memory [{:keys [running? sockets] :as server}]
   (assert-running! server)

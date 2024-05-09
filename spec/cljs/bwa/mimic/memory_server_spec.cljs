@@ -3,6 +3,7 @@
   (:require [bwa.mimic.memory-server :as sut]
             [bwa.mimic.memory-websocket :as mem-socket]
             [bwa.mimic.server :as server]
+            [bwa.mimic.spec-helperc :as spec-helperc]
             [bwa.mimic.websocket :as ws]
             [c3kit.apron.corec :as ccc]
             [c3kit.wire.js :as wjs]
@@ -26,6 +27,7 @@
 
 (describe "Memory Server"
   (with-stubs)
+  (spec-helperc/capture-logs-around)
   (before (wjs/o-set js/performance "now" (fn [] 123.4567))
           (reset! server/impl (sut/->MemoryServer)))
 
