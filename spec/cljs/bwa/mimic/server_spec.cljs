@@ -1,5 +1,5 @@
 (ns bwa.mimic.server-spec
-  (:require-macros [speclj.core :refer [before context describe it should-be-nil should=]])
+  (:require-macros [speclj.core :refer [before context describe it should-be should-be-a should-be-nil should=]])
   (:require [bwa.mimic.server :as sut]
             [c3kit.wire.js :as wjs]
             [speclj.core]))
@@ -7,6 +7,7 @@
 (def sock (js-obj "sock" "et"))
 
 (describe "Server Socket"
+  (before (reset! sut/impl nil))
 
   (it "repl options"
     (should= sut/initiate (wjs/o-get sut/repl-options "initiate"))
@@ -15,6 +16,11 @@
     (should= sut/close (wjs/o-get sut/repl-options "close"))
     (should= sut/send (wjs/o-get sut/repl-options "send"))
     (should= sut/shutdown (wjs/o-get sut/repl-options "shutdown")))
+
+  (it "connections repl option"
+    (let [conns (js-invoke sut/repl-options "connections")]
+      (should-be-a js/Array conns)
+      (should-be empty? conns)))
 
   (context "default"
     (before (reset! sut/impl nil))

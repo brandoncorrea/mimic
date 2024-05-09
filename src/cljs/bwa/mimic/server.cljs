@@ -3,12 +3,12 @@
 (def impl (atom nil))
 
 (defmulti -connections (fn [server _sock] (:impl server)))
+(defmulti -initiate (fn [server _sock] (:impl server)))
 (defmulti -open (fn [server _sock] (:impl server)))
+(defmulti -reject (fn [server _sock _code _reason] (:impl server)))
 (defmulti -close (fn [server _sock] (:impl server)))
 (defmulti -send (fn [server _sock _message] (:impl server)))
-(defmulti -reject (fn [server _sock _code _reason] (:impl server)))
 (defmulti -shutdown (fn [server] (:impl server)))
-(defmulti -initiate (fn [server _sock] (:impl server)))
 
 (defn connections
   "Returns a collection of active connections"
@@ -46,6 +46,7 @@
 (def repl-options
   "Browser access with (set! js/Server repl-options)"
   (js-obj
+    "connections" (comp into-array connections)
     "initiate" initiate
     "open" open
     "reject" reject
