@@ -20,8 +20,7 @@
       (wjs/o-set sock event (juxt existing handler)))))
 
 (defn ->Socket [ready-state]
-  (let [sock (js-obj "readyState" ready-state
-                     "onclose" ccc/noop)]
+  (let [sock (js-obj "readyState" ready-state)]
     (wjs/o-set sock "addEventListener" (->add-event-listener sock))
     sock))
 

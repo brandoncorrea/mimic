@@ -69,15 +69,6 @@
     "readyState" 0
     "url" url))
 
-(defn- append-listener [listeners listener event-name on-error]
-  (fn [event]
-    (when listeners (listeners event))
-    (try
-      (listener event)
-      (catch :default e
-        (on-error event)
-        (log/error (str "Error occurred in MemSocket " event-name) e)))))
-
 (defn- add-listener [event-queue event listener]
   (when (not-any? #{listener} (get @event-queue event))
     (swap! event-queue update event ccc/conjv listener)))
@@ -85,14 +76,18 @@
 (defn- remove-listener [event-queue event listener]
   (swap! event-queue update event #(ccc/removev #{listener} %)))
 
+(defn- attempt-handler [event handler]
+  (try
+    (handler event)
+    (catch :default e
+      (let [event-type (wjs/o-get event "type")]
+        (when (= "close" event-type) (wjs/o-set event "wasClean" false))
+        (log/error (str "Error occurred in MemSocket " event-type) e)))))
+
 (defn- dispatch-event [event-queue event]
   (let [event-type (wjs/o-get event "type")
         handlers   (seq (get @event-queue event-type))]
-    (doseq [handler handlers]
-      (try (handler event)
-           (catch :default e
-             (when (= "close" event-type) (wjs/o-set event "wasClean" false))
-             (log/error (str "Error occurred in MemSocket " event-type) e))))))
+    (run! #(attempt-handler event %) handlers)))
 
 (defn ->MemSocket
   ([url] (->MemSocket url (clj->js [])))
