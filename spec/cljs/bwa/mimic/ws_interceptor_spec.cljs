@@ -13,7 +13,7 @@
 
 (describe "WebSocket Interceptor"
   (with-stubs)
-  (before (reset! server/impl (mem-server/->MemoryServer)))
+  (before (reset! server/impl (mem-server/->MemServer)))
 
   (context "->WebSocketProxy"
 

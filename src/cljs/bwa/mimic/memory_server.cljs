@@ -5,7 +5,7 @@
             [c3kit.apron.corec :as ccc]
             [c3kit.wire.js :as wjs]))
 
-(defn ->MemoryServer []
+(defn ->MemServer []
   {:impl     :memory
    :running? (atom true)
    :sockets  (atom {})})

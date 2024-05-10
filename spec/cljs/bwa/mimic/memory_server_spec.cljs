@@ -27,7 +27,7 @@
   (with-stubs)
   (spec-helperc/capture-logs-around)
   (before (wjs/o-set js/performance "now" (fn [] 123.4567))
-          (reset! server/impl (sut/->MemoryServer)))
+          (reset! server/impl (sut/->MemServer)))
 
   (with sock (mem-socket/->MemSocket "ws://example.com"))
 
