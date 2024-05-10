@@ -69,6 +69,8 @@
     "close" close
     "send" send
     "receive" receive
+    "messages" (comp into-array messages)
+    "flush" flush
     "shutdown" shutdown))
 
 ;region default

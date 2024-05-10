@@ -9,18 +9,28 @@
 (describe "Server Socket"
   (before (reset! sut/impl nil))
 
-  (it "repl options"
-    (should= sut/initiate (wjs/o-get sut/repl-options "initiate"))
-    (should= sut/open (wjs/o-get sut/repl-options "open"))
-    (should= sut/reject (wjs/o-get sut/repl-options "reject"))
-    (should= sut/close (wjs/o-get sut/repl-options "close"))
-    (should= sut/send (wjs/o-get sut/repl-options "send"))
-    (should= sut/shutdown (wjs/o-get sut/repl-options "shutdown")))
+  (context "repl options"
 
-  (it "connections repl option"
-    (let [conns (js-invoke sut/repl-options "connections")]
-      (should-be-a js/Array conns)
-      (should-be empty? conns)))
+    (it "repl options"
+      (should= sut/initiate (wjs/o-get sut/repl-options "initiate"))
+      (should= sut/open (wjs/o-get sut/repl-options "open"))
+      (should= sut/reject (wjs/o-get sut/repl-options "reject"))
+      (should= sut/close (wjs/o-get sut/repl-options "close"))
+      (should= sut/send (wjs/o-get sut/repl-options "send"))
+      (should= sut/receive (wjs/o-get sut/repl-options "receive"))
+      (should= sut/flush (wjs/o-get sut/repl-options "flush"))
+      (should= sut/shutdown (wjs/o-get sut/repl-options "shutdown")))
+
+    (it "connections"
+      (let [connections (js-invoke sut/repl-options "connections")]
+        (should-be-a js/Array connections)
+        (should-be empty? connections)))
+
+    (it "messages"
+      (let [messages (js-invoke sut/repl-options "messages" :ws)]
+        (should-be-a js/Array messages)
+        (should-be empty? messages)))
+    )
 
   (context "default"
     (before (reset! sut/impl nil))
