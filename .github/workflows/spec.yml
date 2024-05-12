@@ -32,3 +32,6 @@ jobs:
 
       - name: Run tests
         run: clojure -M:test:spec
+
+      - name: Run ClojureScript tests
+        run: clojure -M:test:cljs once
