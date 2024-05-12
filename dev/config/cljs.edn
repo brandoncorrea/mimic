@@ -7,7 +7,10 @@
                  :output-to      "target/cljs/bwa_mimic_dev.js"
                  :pretty-print   true
                  :source-map     true
-                 :sources        ["spec/cljc" "src/cljc" "spec/cljs" "src/cljs"]
+                 :sources        ["spec/cljc"
+                                  ;"src/cljc" ; Remove until needed
+                                  "spec/cljs"
+                                  "src/cljs"]
                  :specs          true
                  :verbose        false
                  :watch-fn       c3kit.scaffold.cljs/on-dev-compiled
@@ -21,7 +24,10 @@
                  :pretty-print   false
                  ;:pretty-print   true
                  ;:pseudo-names   true
-                 :sources        ["src/cljc" "src/cljs"]
+                 :sources        [
+                                  ;"src/cljc" ; Remove until needed
+                                  "src/cljs"
+                                  ]
                  :specs          false
                  :verbose        false
                  }
@@ -33,7 +39,10 @@
                  :output-to      "target/cljs/bwa_mimic.js"
                  :pretty-print   true
                  :pseudo-names   true
-                 :sources        ["src/cljc" "src/cljs"]
+                 :sources        [
+                                  ;"src/cljc" ; Remove until needed
+                                  "src/cljs"
+                                  ]
                  :specs          false
                  :verbose        false
                  }
