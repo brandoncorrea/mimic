@@ -1,14 +1,14 @@
 (ns bwa.mimic.ws-interceptor-spec
-  (:require-macros [speclj.core :refer [before context describe it redefs-around should-be-a should-have-invoked should= stub with with-stubs]])
+  (:require-macros [speclj.core :refer [before context describe it should-be-a should-have-invoked should= stub with with-stubs]])
   (:require [bwa.mimic.event :as event]
             [bwa.mimic.memory-server :as mem-server]
             [bwa.mimic.server :as server]
+            [bwa.mimic.spec-helper :as spec-helper]
             [bwa.mimic.websocket :as ws]
             [bwa.mimic.ws-interceptor :as sut]
             [c3kit.wire.js :as wjs]
             [speclj.core]))
 
-(declare server)
 (declare sock)
 
 (describe "WebSocket Interceptor"
@@ -39,7 +39,7 @@
           (should= [ws] (server/connections)))))
 
     (context "events"
-      (before (set! js/WebSocket sut/->WebSocketInterceptor))
+      (spec-helper/with-websocket-impl sut/->WebSocketInterceptor)
 
       (with sock (js/WebSocket. "ws://localhost:8080"))
 
@@ -79,6 +79,5 @@
           (should-have-invoked :listener {:with [event]})
           (should= "error" (wjs/o-get event "type"))))
       )
-
     )
   )

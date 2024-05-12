@@ -59,15 +59,19 @@
    (log/info (str "Closing MemSocket with code: " code))
    (log/info (str "Closing MemSocket with reason: " reason))))
 
+(defn- add-slash? [url] (not (re-find #"^wss?://[^/]*/" url)))
+(defn- normalize-url [url] (cond-> url (add-slash? url) (str "/")))
+
 (defn- init [url protocols]
   (assert-valid-url url)
-  (js-obj
-    "binaryType" "blob"
-    "bufferedAmount" 0
-    "extensions" ""
-    "protocol" (select-protocol protocols)
-    "readyState" 0
-    "url" url))
+  (let [url (normalize-url url)]
+    (js-obj
+      "binaryType" "blob"
+      "bufferedAmount" 0
+      "extensions" ""
+      "protocol" (select-protocol protocols)
+      "readyState" 0
+      "url" url)))
 
 (defn- add-listener [event-queue event listener]
   (when (not-any? #{listener} (get @event-queue event))

@@ -1,15 +1,13 @@
 (ns bwa.mimic.memory-server-spec
-  (:require-macros [speclj.core :refer [before context describe it should should-be-nil should-contain should-have-invoked should-not-have-invoked should-throw should= stub with with-stubs]])
-  (:require [bwa.mimic.memory-server :as sut]
-            [bwa.mimic.memory-websocket :as mem-socket]
-            [bwa.mimic.server :as server]
+  (:require-macros [speclj.core :refer [context describe it should should-be-nil should-contain should-have-invoked should-not-have-invoked should-throw should= stub with with-stubs]])
+  (:require [bwa.mimic.server :as server]
+            [bwa.mimic.spec-helper :as spec-helper]
             [bwa.mimic.spec-helperc :as spec-helperc]
             [bwa.mimic.websocket :as ws]
             [c3kit.wire.js :as wjs]
             [speclj.core]
             [speclj.stub :as stub]))
 
-(def server server/impl)
 (declare sock)
 
 (defn ->add-event-listener [sock]
@@ -26,14 +24,14 @@
 (describe "Memory Server"
   (with-stubs)
   (spec-helperc/capture-logs-around)
-  (before (wjs/o-set js/performance "now" (fn [] 123.4567))
-          (reset! server/impl (sut/->MemServer)))
+  (spec-helper/with-memory-websockets)
+  (spec-helper/stub-performance-now 123.4567)
 
-  (with sock (mem-socket/->MemSocket "ws://example.com"))
+  (with sock (js/WebSocket. "ws://example.com"))
 
   (it "connections"
     (should= [@sock] (server/connections))
-    (let [sock-2 (mem-socket/->MemSocket "ws://blah.com")]
+    (let [sock-2 (js/WebSocket. "ws://blah.com")]
       (should= [@sock sock-2] (server/connections))
       (ws/close! @sock)
       (should= [sock-2] (server/connections))
@@ -307,7 +305,7 @@
       (should-throw js/Error "Server is not running" (server/send @sock "foo")))
 
     (it "invokes onerror for all active sockets"
-      (let [sock-2 (mem-socket/->MemSocket "ws://example.com")]
+      (let [sock-2 (js/WebSocket. "ws://example.com")]
         (wjs/add-listener @sock "error" (stub :error-1))
         (wjs/add-listener sock-2 "error" (stub :error-2))
         (server/shutdown)
@@ -344,7 +342,7 @@
         (should= @sock (wjs/o-get event "target"))))
 
     (it "invokes onclose for all active sockets"
-      (let [sock-2 (mem-socket/->MemSocket "ws://example.com")]
+      (let [sock-2 (js/WebSocket. "ws://example.com")]
         (wjs/add-listener @sock "close" (stub :close-1))
         (wjs/add-listener sock-2 "close" (stub :close-2))
         (server/shutdown)

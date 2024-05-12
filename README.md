@@ -33,22 +33,20 @@ Add the following dependency to your deps.edn file:
 
 ```clojure
 (ns acme.mimic-spec
-  (:require [bwa.mimic.memory-server :as mem-server]
-            [bwa.mimic.memory-websocket :as mem-ws]
-            [bwa.mimic.server :as server]
+  (:require [bwa.mimic.server :as server]
+            [bwa.mimic.spec-helper :as mimic-helper]
             [c3kit.wire.js :as wjs]
-            [speclj.core :refer-macros [before describe it should= should-not should-be should]]))
+            [speclj.core :refer-macros [describe it should= should-not should-be should]]))
 
 (describe "Mimic"
-  (before (reset! server/impl (mem-server/->MemServer))
-          (set! js/WebSocket mem-ws/->MemSocket))
+  (mimic-helper/with-memory-websockets)
 
   (it "listens for messages"
     (should-be empty? (server/connections))
     (connect!)
     (let [[ws :as connections] (server/connections)]
       (should= 1 (count connections))
-      (should= "ws://localhost:8080" (wjs/o-get ws "url"))
+      (should= "ws://localhost:8080/" (wjs/o-get ws "url"))
 
       (should-not @connected?)
       (server/open ws)

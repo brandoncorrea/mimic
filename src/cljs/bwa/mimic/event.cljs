@@ -1,16 +1,15 @@
 (ns bwa.mimic.event
   (:require [c3kit.wire.js :as wjs]))
 
-;; TODO [BAC]: Could be better... will work for now
 (def JsWebSocket js/WebSocket)
-(defn- dispatch [ws] (when (isa? JsWebSocket (type ws)) :native))
 
 ;region API
 
-(defmulti ->OpenEvent (fn [ws] (dispatch ws)))
-(defmulti ->CloseEvent (fn [ws _code _reason _clean?] (dispatch ws)))
-(defmulti ->MessageEvent (fn [ws _data] (dispatch ws)))
-(defmulti ->ErrorEvent (fn [ws] (dispatch ws)))
+;; TODO [BAC]: Could be better (maybe?)... will work for now
+(defmulti ->OpenEvent (fn [ws] (type ws)))
+(defmulti ->CloseEvent (fn [ws _code _reason _clean?] (type ws)))
+(defmulti ->MessageEvent (fn [ws _data] (type ws)))
+(defmulti ->ErrorEvent (fn [ws] (type ws)))
 
 ;endregion
 
@@ -29,13 +28,13 @@
 
 ;region Native Events
 
-(defmethod ->MessageEvent :native [ws data]
+(defmethod ->MessageEvent JsWebSocket [ws data]
   (-> (js/Event. "message")
       (with-message-props ws data)))
 
-(defmethod ->OpenEvent :native [_ws] (js/Event. "open"))
-(defmethod ->ErrorEvent :native [_ws] (js/Event. "error"))
-(defmethod ->CloseEvent :native [_ws code reason clean?]
+(defmethod ->OpenEvent JsWebSocket [_ws] (js/Event. "open"))
+(defmethod ->ErrorEvent JsWebSocket [_ws] (js/Event. "error"))
+(defmethod ->CloseEvent JsWebSocket [_ws code reason clean?]
   (-> (js/Event. "close")
       (with-close-props code reason clean?)))
 

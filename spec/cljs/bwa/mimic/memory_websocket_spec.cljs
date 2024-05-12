@@ -3,6 +3,7 @@
   (:require [bwa.mimic.event :as event]
             [bwa.mimic.memory-websocket :as sut]
             [bwa.mimic.server :as server]
+            [bwa.mimic.spec-helper :as spec-helper]
             [bwa.mimic.spec-helperc :as spec-helperc]
             [bwa.mimic.websocket :as ws]
             [c3kit.apron.log :as log]
@@ -36,7 +37,7 @@
 (describe "Memory WebSocket"
   (with-stubs)
   (spec-helperc/capture-logs-around)
-  (before (wjs/o-set js/performance "now" (fn [] 123.4567)))
+  (spec-helper/stub-performance-now 123.4567)
 
   (with sock (sut/->MemSocket "ws://example.com/foo"))
   (redefs-around [server/initiate (stub :server/initiate)])
@@ -51,6 +52,18 @@
       (should= 0 (wjs/o-get @sock "readyState"))
       (should= "" (wjs/o-get @sock "extensions"))
       (should= "" (wjs/o-get @sock "protocol")))
+
+    (it "new socket ending with a forward-slash"
+      (let [sock (sut/->MemSocket "ws://example.com/")]
+        (should= "ws://example.com/" (wjs/o-get sock "url"))))
+
+    (it "new socket without an ending forward-slash"
+      (let [sock (sut/->MemSocket "ws://example.com")]
+        (should= "ws://example.com/" (wjs/o-get sock "url"))))
+
+    (it "with a URI, not ending with a forward-slash"
+      (let [sock (sut/->MemSocket "ws://example.com/foo")]
+        (should= "ws://example.com/foo" (wjs/o-get sock "url"))))
 
     (it "specifies a protocol"
       (let [sock (sut/->MemSocket "ws://example.com/foo" "theProtocol")]
