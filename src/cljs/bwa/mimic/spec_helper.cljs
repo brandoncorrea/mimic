@@ -1,5 +1,6 @@
 (ns bwa.mimic.spec-helper
   (:require [bwa.mimic.memory-server :as mem-server]
+            [bwa.mimic.memory-storage :as mem-store]
             [bwa.mimic.memory-websocket :as mem-ws]
             [bwa.mimic.server :as server]
             [c3kit.wire.js :as wjs]
@@ -14,3 +15,6 @@
 
 (defn stub-performance-now [time]
   (before (wjs/o-set js/performance "now" (fn [] time))))
+
+(defn with-memory-local-storage []
+  (before (set! js/localStorage (mem-store/->MemStorage))))

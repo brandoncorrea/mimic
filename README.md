@@ -16,7 +16,7 @@ Add the following dependency to your deps.edn file:
 
 ### WebSockets
 
-#### In Your Tests (speclj)
+#### In Your Tests
 
 ```clojure
 (ns acme.mimic
@@ -33,7 +33,8 @@ Add the following dependency to your deps.edn file:
 
 ```clojure
 (ns acme.mimic-spec
-  (:require [bwa.mimic.server :as server]
+  (:require [acme.mimic :as sut]
+            [bwa.mimic.server :as server]
             [bwa.mimic.spec-helper :as mimic-helper]
             [c3kit.wire.js :as wjs]
             [speclj.core :refer-macros [describe it should= should-not should-be should]]))
@@ -43,22 +44,22 @@ Add the following dependency to your deps.edn file:
 
   (it "listens for messages"
     (should-be empty? (server/connections))
-    (connect!)
+    (sut/connect!)
     (let [[ws :as connections] (server/connections)]
       (should= 1 (count connections))
       (should= "ws://localhost:8080/" (wjs/o-get ws "url"))
 
-      (should-not @connected?)
+      (should-not @sut/connected?)
       (server/open ws)
-      (should @connected?)
+      (should @sut/connected?)
 
       (server/send ws "first payload")
-      (should= ["first payload"] @messages)
+      (should= ["first payload"] @sut/messages)
       (server/send ws "second payload")
-      (should= ["first payload" "second payload"] @messages)
+      (should= ["first payload" "second payload"] @sut/messages)
 
       (server/close ws)
-      (should-not @connected?)))
+      (should-not @sut/connected?)))
   )
 ```
 
@@ -79,5 +80,48 @@ Add the following dependency to your deps.edn file:
 
   ; Configure your server implementation
   (reset! server/impl (mem-server/->MemServer))
+  )
+```
+
+### Storage (local or session)
+
+#### In Your Tests
+
+```clojure
+(ns acme.mimic-spec
+  (:require [acme.mimic :as sut]
+            [bwa.mimic.spec-helper :as spec-helper]
+            [speclj.core :refer-macros [describe it should=]]))
+
+(describe "Mimic"
+  (spec-helper/with-memory-local-storage)
+
+  (it "sets the theme to light or dark mode"
+    (sut/set-theme! "light")
+    (should= "light" (js-invoke js/localStorage "getItem" "theme"))
+    (sut/set-theme! "dark")
+    (should= "dark" (js-invoke js/localStorage "getItem" "theme")))
+  )
+```
+
+```clojure
+(ns acme.mimic)
+
+(defn set-theme! [theme]
+  (js-invoke js/localStorage "setItem" "theme" theme))
+```
+
+#### In Your App
+
+```clojure
+(ns acme.main
+  (:require [bwa.mimic.memory-storage :as mem-store]))
+
+(defn -main []
+  ; redefine localStorage
+  (set! js/localStorage (mem-store/->MemStorage))
+
+  ; redefine sessionStorage
+  (set! js/sessionStorage (mem-store/->MemStorage))
   )
 ```
