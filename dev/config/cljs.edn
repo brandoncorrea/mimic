@@ -1,5 +1,6 @@
 {
  :ns-prefix     "bwa.mimic"
+ :env-keys      ["BWA_ENV"]
  :ignore-errors ["goog/i18n/bidi.js"]
  :development   {:cache-analysis true
                  :optimizations  :none
@@ -22,8 +23,6 @@
                  :output-dir     "target/cljs/"
                  :output-to      "target/cljs/bwa_mimic.js"
                  :pretty-print   false
-                 ;:pretty-print   true
-                 ;:pseudo-names   true
                  :sources        [
                                   ;"src/cljc" ; Remove until needed
                                   "src/cljs"
@@ -31,19 +30,15 @@
                  :specs          false
                  :verbose        false
                  }
- :staging       {
+ :ci            {
                  :cache-analysis false
                  :infer-externs  true
                  :optimizations  :whitespace
                  :output-dir     "target/cljs/"
                  :output-to      "target/cljs/bwa_mimic.js"
-                 :pretty-print   true
-                 :pseudo-names   true
-                 :sources        [
-                                  ;"src/cljc" ; Remove until needed
-                                  "src/cljs"
-                                  ]
-                 :specs          false
+                 :pretty-print   false
+                 :sources        ["spec/cljc" "spec/cljs" "src/cljs"]
+                 :specs          true
                  :verbose        false
                  }
  }
