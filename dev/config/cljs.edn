@@ -33,7 +33,7 @@
  :ci            {
                  :cache-analysis false
                  :infer-externs  true
-                 :optimizations  :whitespace
+                 :optimizations  :simple
                  :output-dir     "target/cljs/"
                  :output-to      "target/cljs/bwa_mimic.js"
                  :pretty-print   false
