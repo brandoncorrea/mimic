@@ -1,6 +1,6 @@
 # Mimic
 
-[![Clojure CI](https://github.com/brandoncorrea/mimic/actions/workflows/spec.yml/badge.svg)](https://github.com/brandoncorrea/mimic/actions/workflows/spec.yml)
+[![Run Tests](https://github.com/brandoncorrea/mimic/actions/workflows/test.yml/badge.svg)](https://github.com/brandoncorrea/mimic/actions/workflows/test.yml)
 
 A library consisting of fake implementations of hard-to-reach things.
 
