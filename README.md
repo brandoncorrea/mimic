@@ -127,3 +127,47 @@ Add the following dependency to your deps.edn file:
   (set! js/sessionStorage (mem-store/->MemStorage))
   )
 ```
+
+### Manual Worker
+
+#### In Your Tests
+
+```clojure
+(ns acme.mimic-spec
+  (:require [acme.mimic :as sut]
+            [bwa.mimic.spec-helper :as spec-helper]
+            [speclj.core :refer-macros [describe it should=]]))
+
+(describe "Mimic"
+  (spec-helper/with-manual-worker)
+
+  (it "travels through time"
+    (sut/start-clock)
+    (sut/time-travel)
+    (let [[timeout] (worker/timeouts)
+          [interval] (worker/intervals)]
+      (should= 1000 (:delay interval))
+      (should= 88 (:delay timeout))
+      (should= 0 @sut/seconds)
+      (worker/tick! interval)
+      (should= 1 @sut/seconds)
+      (worker/tick! interval)
+      (should= 2 @sut/seconds)
+      (worker/tick! timeout)
+      (should= 122 @sut/seconds)
+      (worker/tick! interval)
+      (should= 123 @sut/seconds)))
+  )
+```
+
+```clojure
+(ns acme.mimic)
+
+(def seconds (atom 0))
+
+(defn start-clock []
+  (js/setInterval #(swap! seconds inc) 1000))
+
+(defn time-travel []
+  (js/setTimeout #(swap! seconds + 120) 88))
+```
