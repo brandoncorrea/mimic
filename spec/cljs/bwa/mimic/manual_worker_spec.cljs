@@ -1,13 +1,14 @@
 (ns bwa.mimic.manual-worker-spec
   (:require [bwa.mimic.manual-worker :as sut]
+            [bwa.mimic.spec-helper :as spec-helper]
             [bwa.mimic.spec-helperc :as spec-helperc]
             [c3kit.apron.corec :as ccc]
             [c3kit.apron.log :as log]
-            [speclj.core :refer-macros [before context describe should-be it should-be-nil should-not-contain should= should<]]))
+            [speclj.core :refer-macros [context describe should-be it should-be-nil should-not-contain should= should<]]))
 
 (describe "Manual Worker"
   (spec-helperc/capture-logs-around)
-  (before (sut/clear!))
+  (spec-helper/with-manual-worker)
 
   (context "Intervals"
 
@@ -280,6 +281,21 @@
           (sut/tick! id)
           (should-be empty? (sut/timeouts))))
       )
+    )
+
+  (context "Spec Helper"
+
+    (it "redefines js/setInterval"
+      (should-be empty? (sut/timeouts))
+      (should-be empty? (sut/intervals))
+      (js/setInterval ccc/noop 1000)
+      (should= 1 (count (sut/intervals))))
+
+    (it "redefines js/setTimeout"
+      (should-be empty? (sut/timeouts))
+      (should-be empty? (sut/intervals))
+      (js/setTimeout ccc/noop 1000)
+      (should= 1 (count (sut/timeouts))))
     )
 
   )

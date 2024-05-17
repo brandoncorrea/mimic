@@ -1,5 +1,6 @@
 (ns bwa.mimic.spec-helper
-  (:require [bwa.mimic.memory-server :as mem-server]
+  (:require [bwa.mimic.manual-worker :as worker]
+            [bwa.mimic.memory-server :as mem-server]
             [bwa.mimic.memory-storage :as mem-store]
             [bwa.mimic.memory-websocket :as mem-ws]
             [bwa.mimic.server :as server]
@@ -16,5 +17,19 @@
 (defn stub-performance-now [time]
   (before (wjs/o-set js/performance "now" (fn [] time))))
 
+(defn- memory-storage-storage [js-store]
+  (before
+    (let [store (mem-store/->MemStorage)]
+      (doseq [attr ["getItem" "setItem" "removeItem" "clear"]]
+        (wjs/o-set js-store attr (wjs/o-get store attr))))))
+
 (defn with-memory-local-storage []
-  (before (set! js/localStorage (mem-store/->MemStorage))))
+  (memory-storage-storage js/localStorage))
+
+(defn with-memory-session-storage []
+  (memory-storage-storage js/sessionStorage))
+
+(defn with-manual-worker []
+  (before (worker/clear!)
+          (set! js/setTimeout worker/set-timeout)
+          (set! js/setInterval worker/set-interval)))
