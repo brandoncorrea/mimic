@@ -16,7 +16,7 @@
   (before (reset! server/impl (mem-server/->MemServer)))
   (after (run! ws/close! (server/connections)))
 
-  (context "->WebSocketProxy"
+  (context "->WebSocketInterceptor"
 
     (it "url only"
       (let [ws (sut/->WebSocketInterceptor "ws://localhost:8080")]
