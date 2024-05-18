@@ -6,15 +6,15 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  BWA_ENV: ci
+
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set ENV
-        run: echo "BWA_ENV=ci" >> $GITHUB_ENV
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
