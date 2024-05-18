@@ -15,7 +15,7 @@
     (it "begins with no intervals"
       (should-be empty? (sut/intervals)))
 
-    (it "can use clear-interval or clear-timeout interchangeable"
+    (it "can use clear-interval or clear-timeout interchangeably"
       (let [id-1 (sut/set-interval ccc/noop)
             id-2 (sut/set-interval ccc/noop)]
         (should= 2 (count (sut/intervals)))
@@ -150,7 +150,7 @@
     (it "begins with no timeouts"
       (should-be empty? (sut/timeouts)))
 
-    (it "can use clear-interval or clear-timeout interchangeable"
+    (it "can use clear-interval or clear-timeout interchangeably"
       (let [id-1 (sut/set-timeout ccc/noop)
             id-2 (sut/set-timeout ccc/noop)]
         (should= 2 (count (sut/timeouts)))
