@@ -1,5 +1,5 @@
 (ns bwa.mimic.ws-interceptor-spec
-  (:require-macros [speclj.core :refer [before context describe it should-be-a should-have-invoked should= stub with with-stubs]])
+  (:require-macros [speclj.core :refer [after before context describe it should-be-a should-have-invoked should= stub with with-stubs]])
   (:require [bwa.mimic.event :as event]
             [bwa.mimic.memory-server :as mem-server]
             [bwa.mimic.server :as server]
@@ -14,6 +14,7 @@
 (describe "WebSocket Interceptor"
   (with-stubs)
   (before (reset! server/impl (mem-server/->MemServer)))
+  (after (run! ws/close! (server/connections)))
 
   (context "->WebSocketProxy"
 
