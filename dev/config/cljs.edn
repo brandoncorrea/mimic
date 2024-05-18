@@ -1,7 +1,8 @@
 {
  :ns-prefix     "bwa.mimic"
  :env-keys      ["BWA_ENV"]
- :ignore-errors ["goog/i18n/bidi.js"]
+ :ignore-errors ["goog/i18n/bidi.js"
+                 "Failed to load resource: net::ERR_FILE_NOT_FOUND"]
  :development   {:cache-analysis true
                  :optimizations  :none
                  :output-dir     "target/cljs/"
