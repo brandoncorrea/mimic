@@ -9,7 +9,7 @@
             [c3kit.wire.js :as wjs]
             [speclj.core]))
 
-(declare sock)
+(def sock (atom nil))
 
 (describe "WebSocket Interceptor"
   (with-stubs)
@@ -42,7 +42,8 @@
     (context "events"
       (spec-helper/with-websocket-impl sut/->WebSocketInterceptor)
 
-      (with sock (js/WebSocket. "ws://localhost:8080"))
+      ;; TODO [BAC]: (with sock ...) once speclj advanced `with` issue is resolved
+      (before (reset! sock (js/WebSocket. "ws://localhost:8080")))
 
       (it "message"
         (let [event (event/->MessageEvent @sock "blah")]

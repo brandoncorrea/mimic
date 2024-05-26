@@ -3,7 +3,7 @@
             [bwa.mimic.memory-storage :as sut]
             [bwa.mimic.spec-helper :as spec-helper]
             [c3kit.wire.js :as wjs]
-            [speclj.core :refer-macros [context should-not= describe should-not-throw should-be-a it should= should-be-nil should-fail with]]))
+            [speclj.core :refer-macros [context before should-not= describe should-not-throw should-be-a it should= should-be-nil should-fail]]))
 
 (def js-local-storage
   {:get-item    (wjs/o-get js/localStorage "getItem")
@@ -19,7 +19,7 @@
    :clear       (wjs/o-get js/sessionStorage "clear")
    })
 
-(declare store)
+(def store (atom nil))
 (defn repeat-str [s n] (js-invoke s "repeat" n))
 (defn o-keys [obj] (js->clj (sut/o-keys obj)))
 (defn o-values [obj] (js->clj (js-invoke js/Object "values" obj)))
@@ -29,7 +29,8 @@
 
   (context "API"
 
-    (with store (sut/->MemStorage))
+    ;; TODO [BAC]: (with store ...) once speclj advanced `with` issue is resolved
+    (before (reset! store (sut/->MemStorage)))
 
     (it "initialized"
       (should-be-a js/Object @store)
