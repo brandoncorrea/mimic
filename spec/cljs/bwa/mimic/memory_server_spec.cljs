@@ -1,5 +1,5 @@
 (ns bwa.mimic.memory-server-spec
-  (:require-macros [speclj.core :refer [before context describe it should should-be-nil should-contain should-have-invoked should-not-have-invoked should-throw should= stub with-stubs]])
+  (:require-macros [speclj.core :refer [context describe it should should-be-nil should-contain should-have-invoked should-not-have-invoked should-throw should= stub with with-stubs]])
   (:require [bwa.mimic.server :as server]
             [bwa.mimic.spec-helper :as spec-helper]
             [bwa.mimic.spec-helperc :as spec-helperc]
@@ -19,7 +19,7 @@
     (wjs/o-set sock "addEventListener" (->add-event-listener sock))
     sock))
 
-(def sock (atom nil))
+(declare sock)
 
 (describe "Memory Server"
   (with-stubs)
@@ -27,8 +27,7 @@
   (spec-helper/with-memory-websockets)
   (spec-helper/stub-performance-now 123.4567)
 
-  ;; TODO [BAC]: (with sock ...) once speclj advanced `with` issue is resolved
-  (before (reset! sock (js/WebSocket. "ws://example.com")))
+  (with sock (js/WebSocket. "ws://example.com"))
 
   (it "connections"
     (should= [@sock] (server/connections))

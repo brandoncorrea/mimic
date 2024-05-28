@@ -1,5 +1,5 @@
 (ns bwa.mimic.memory-websocket-spec
-  (:require-macros [speclj.core :refer [before context describe it redefs-around should-contain should-have-invoked should-not-have-invoked should-not-throw should-throw should= stub with-stubs]])
+  (:require-macros [speclj.core :refer [before context describe it redefs-around should-contain should-have-invoked should-not-have-invoked should-not-throw should-throw should= stub with-stubs with]])
   (:require [bwa.mimic.event :as event]
             [bwa.mimic.memory-websocket :as sut]
             [bwa.mimic.server :as server]
@@ -11,7 +11,7 @@
             [clojure.string :as str]
             [speclj.stub :as stub]))
 
-(def sock (atom nil))
+(declare sock)
 
 (defn should-have-invoked-close-event
   ([name sock code reason] (should-have-invoked-close-event name sock code reason true))
@@ -39,8 +39,7 @@
   (spec-helperc/capture-logs-around)
   (spec-helper/stub-performance-now 123.4567)
 
-  ;; TODO [BAC]: (with sock ...) once speclj advanced `with` issue is resolved
-  (before (reset! sock (sut/->MemSocket "ws://example.com/foo")))
+  (with sock (sut/->MemSocket "ws://example.com/foo"))
 
   (redefs-around [server/initiate (stub :server/initiate)])
 
