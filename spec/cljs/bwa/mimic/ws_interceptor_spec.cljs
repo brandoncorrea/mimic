@@ -57,9 +57,11 @@
           (should= [] (wjs/o-get event "ports"))))
 
       (it "close"
-        (let [event (event/->CloseEvent @sock 1006 "just because" true)]
-          (wjs/add-listener @sock "close" (stub :listener))
+        (let [event    (event/->CloseEvent @sock 1006 "just because" true)
+              listener (stub :listener)]
+          (wjs/add-listener @sock "close" listener)
           (ws/dispatch-event! @sock event)
+          (wjs/remove-listener @sock "close" listener)
           (should-have-invoked :listener {:with [event]})
           (should= "close" (wjs/o-get event "type"))
           (should= 1006 (wjs/o-get event "code"))
@@ -74,9 +76,11 @@
           (should= "open" (wjs/o-get event "type"))))
 
       (it "error"
-        (let [event (event/->ErrorEvent @sock)]
-          (wjs/add-listener @sock "error" (stub :listener))
+        (let [event    (event/->ErrorEvent @sock)
+              listener (stub :listener)]
+          (wjs/add-listener @sock "error" listener)
           (ws/dispatch-event! @sock event)
+          (wjs/remove-listener @sock "error" listener)
           (should-have-invoked :listener {:with [event]})
           (should= "error" (wjs/o-get event "type"))))
       )

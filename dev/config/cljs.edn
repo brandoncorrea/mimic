@@ -1,45 +1,44 @@
 {
- :ns-prefix     "bwa.mimic"
- :env-keys      ["BWA_ENV"]
- :ignore-errors ["goog/i18n/bidi.js"
-                 "Failed to load resource: net::ERR_FILE_NOT_FOUND"]
- :development   {:cache-analysis true
-                 :optimizations  :none
-                 :output-dir     "target/cljs/"
-                 :output-to      "target/cljs/bwa_mimic_dev.js"
-                 :pretty-print   true
-                 :source-map     true
-                 :sources        ["spec/cljc"
-                                  ;"src/cljc" ; Remove until needed
-                                  "spec/cljs"
-                                  "src/cljs"]
-                 :specs          true
-                 :verbose        false
-                 :watch-fn       c3kit.scaffold.cljs/on-dev-compiled
-                 }
- :production    {
-                 :cache-analysis false
-                 :infer-externs  true
-                 :optimizations  :advanced
-                 :output-dir     "target/cljs/"
-                 :output-to      "target/cljs/bwa_mimic.js"
-                 :pretty-print   false
-                 :sources        [
-                                  ;"src/cljc" ; Remove until needed
-                                  "src/cljs"
-                                  ]
-                 :specs          false
-                 :verbose        false
-                 }
- :ci            {
-                 :cache-analysis false
-                 :infer-externs  true
-                 :optimizations  :simple
-                 :output-dir     "target/cljs/"
-                 :output-to      "target/cljs/bwa_mimic.js"
-                 :pretty-print   false
-                 :sources        ["spec/cljc" "spec/cljs" "src/cljs"]
-                 :specs          true
-                 :verbose        false
-                 }
+ :ns-prefix      "bwa.mimic"
+ :env-keys       ["BWA_ENV"]
+ :ignore-errors  ["goog/i18n/bidi.js"]
+ :ignore-console ["Failed to load resource: net::ERR_FILE_NOT_FOUND"]
+ :development    {:cache-analysis true
+                  :optimizations  :none
+                  :output-dir     "target/cljs/"
+                  :output-to      "target/cljs/bwa_mimic_dev.js"
+                  :pretty-print   true
+                  :source-map     true
+                  :sources        ["spec/cljc"
+                                   ;"src/cljc" ; Remove until needed
+                                   "spec/cljs"
+                                   "src/cljs"]
+                  :specs          true
+                  :verbose        false
+                  :watch-fn       c3kit.scaffold.cljs/on-dev-compiled
+                  }
+ :production     {
+                  :cache-analysis false
+                  :infer-externs  true
+                  :optimizations  :advanced
+                  :output-dir     "target/cljs/"
+                  :output-to      "target/cljs/bwa_mimic.js"
+                  :pretty-print   false
+                  :sources        [
+                                   ;"src/cljc" ; Remove until needed
+                                   "src/cljs"
+                                   ]
+                  :specs          false
+                  :verbose        false
+                  }
+ :ci             {
+                  :cache-analysis false
+                  :optimizations  :advanced
+                  :output-dir     "target/cljs/"
+                  :output-to      "target/cljs/bwa_mimic.js"
+                  :pretty-print   false
+                  :sources        ["spec/cljc" "spec/cljs" "src/cljs"]
+                  :specs          true
+                  :verbose        false
+                  }
  }
